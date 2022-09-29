@@ -25,6 +25,7 @@ ClientManager::ClientManager()
 {
 }
 
+
 void ClientManager::startModule()
 {
 	ModuleBase::startModule();
@@ -34,33 +35,38 @@ void ClientManager::startModule()
 	initEndEvent();
 }
 
+
 std::string ClientManager::getBaseDomain()
 {
 	return BASE_DOMAIN;
 }
+
 
 std::string ClientManager::getBaseUrl()
 {
 	return BASE_URL;
 }
 
+
 std::string ClientManager::getRobloxDomain()
 {
 	return ROBLOX_DOMAIN;
 }
+
 
 std::string ClientManager::getRobloxUrl()
 {
 	return ROBLOX_URL;
 }
 
+
 void ClientManager::patchClient()
 {
 	// We could replace the actual pointer here instead of the value it points to (though it doesn't really matter since pubkeys are always the same length)
 	PatchHelper::PatchBytes(publicKey, "BgIAAACkAABSU0ExAAQAAAEAAQCRCVQhLSOLCa8zpdnkvM6iYQ/noaVbZgI5gkPUh7eWygShuCXTN+nTAZql7oFrmSWgj86QugP0lBkkl6Gtr1FptfyCKHs9rhBxiJ3wjFbb0tPN11ephsGEPa+JgauM5ZRt52IPNfruzs1r/pYl7yBh/XKLxp+9DKCue1ifYWtc3A==");
-	PatchHelper::PatchBytes(assetUrl1, "http://roblonium.com/asset/?");
-	PatchHelper::PatchBytes(assetUrl2, "http://roblonium.com/asset/");
-	PatchHelper::PatchBytes(assetUrl3, "http://www.roblonium.com/asset/");
+	//PatchHelper::PatchBytes(assetUrl1, "http://roblonium.com/asset/?");
+	PatchHelper::PatchBytes(assetUrl2, "http://roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
+	PatchHelper::PatchBytes(assetUrl3, "http://www.roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
 	PatchHelper::PatchBytes(fileSystem1, "\\Hexine\\");
 	PatchHelper::PatchBytes(fileSystem2, "Hexine\\");
 
@@ -69,10 +75,14 @@ void ClientManager::patchClient()
 	PatchHelper::HookFunction((unsigned int)ClientManagerBase::trustCheck, (unsigned int)&trustCheck);
 	PatchHelper::HookFunction((unsigned int)ClientManagerBase::buildGenericApiUrl, (unsigned int)&buildGenericApiUrlWrapper);
 	PatchHelper::HookFunction((unsigned int)ClientManagerBase::cleanUpIfAssetUrl, (unsigned int)&cleanUpIfAssetUrl);
+	// TODO: For some reason merely the act of hooking this function causes a stack corruption
+	// later down the line, and I have no idea why...
+	//PatchHelper::HookFunction((unsigned int)ClientManagerBase::isValidRobloxAssetUrl, (unsigned int)&isValidRobloxAssetUrlWrapper);
 	PatchHelper::HookFunction((unsigned int)ClientManagerBase::getDefaultReportUrl, (unsigned int)&getDefaultReportUrl);
 
 	//print(ClientManagerBase::buildGenericApiUrl(getBaseUrl(), "games", "/v1/GetRelayConfiguration", "test").c_str());
 }
+
 
 bool ClientManager::isTrustedContent(const char* url)
 {
@@ -81,6 +91,7 @@ bool ClientManager::isTrustedContent(const char* url)
 	//printf("isTrustedContent: %s", url);
 	return true;
 }
+
 
 bool ClientManager::trustCheck(const char* url, bool externalRequest)
 {
@@ -95,7 +106,8 @@ bool ClientManager::trustCheck(const char* url, bool externalRequest)
 	return true;
 }
 
-std::string ClientManager::buildGenericApiUrlWrapper(primative<std::string> baseUrl, primative<std::string> serviceNameIn, primative<std::string> path, primative<std::string> key)
+
+std::string ClientManager::buildGenericApiUrlWrapper(primitive<std::string> baseUrl, primitive<std::string> serviceNameIn, primitive<std::string> path, primitive<std::string> key)
 {
 	return buildGenericApiUrl(
 		*(std::string*)&baseUrl,
@@ -105,7 +117,7 @@ std::string ClientManager::buildGenericApiUrlWrapper(primative<std::string> base
 	);
 }
 
-//CallWrapper<0, std::string, std::string, std::string, std::string, std::string> ClientManager::buildGenericApiUrlWrapper(&buildGenericApiUrl);
+
 std::string ClientManager::buildGenericApiUrl(const std::string& baseUrl, const std::string& serviceNameIn, const std::string& path, const std::string& key) // should be HTTPS
 {
 	std::string serviceName(serviceNameIn);
@@ -164,6 +176,7 @@ std::string ClientManager::buildGenericApiUrl(const std::string& baseUrl, const 
 	return url;
 }
 
+
 bool ClientManager::isHttpUrl(const std::string& s)
 {
 	if (s.find("http://") == 0)
@@ -172,6 +185,7 @@ bool ClientManager::isHttpUrl(const std::string& s)
 		return true;
 	return false;
 }
+
 
 std::string ClientManager::cleanUpIfAssetUrl(const std::string& url)
 {
@@ -199,12 +213,53 @@ std::string ClientManager::cleanUpIfAssetUrl(const std::string& url)
 			}
 		}
 
-		//printf("cleanUpIfAssetUrl (original): %s", url.c_str());
-		//printf("cleanUpIfAssetUrl: %s", lower.c_str());
+		//WatchDog::singleton()->printf("cleanUpIfAssetUrl (original): %s", url.c_str());
+		//WatchDog::singleton()->printf("cleanUpIfAssetUrl: %s", lower.c_str());
 		return lower;
     }
+	WatchDog::singleton()->print(url.c_str());
 	return url;
 }
+
+
+bool ClientManager::isValidRobloxAssetUrlWrapper(primitive<std::string> url)
+{
+	return isValidRobloxAssetUrl(
+		*(std::string*)&url
+	);
+}
+
+
+bool ClientManager::isValidRobloxAssetUrl(const std::string& url)
+{
+	if (!url.compare(0, 4, "http"))
+	{
+		// URL begins with "http"
+		std::string lower = url;
+		std::transform(lower.begin(), lower.end(), lower.begin(), tolower);
+
+		if (lower.find("/asset/") == std::string::npos)
+			return false;
+
+		unsigned int comPos = lower.find(".com");
+		if ((	
+				lower.find(".roblox.com/asset/") >= comPos &&
+				lower.find(".roblox.com//asset/") >= comPos &&
+				lower.find("http://roblox.com/asset/") >= comPos &&
+				lower.find("http://roblox.com//asset/") >= comPos &&
+				lower.find(".robloxlabs.com/asset/") >= comPos &&
+				lower.find(".robloxlabs.com//asset/") >= comPos)
+			|| lower.find("asset/..") != std::string::npos
+		){
+			//RBX::StandardOut::singleton()->printf(RBX::MESSAGE_WARNING, "blocking %s", url);
+			WatchDog::singleton()->printf("blocking %s", url);
+			return false;
+		}
+	}
+	// I think this is for stuff like "rbxasset://", otherwise we validate the URL
+	return true;
+}
+
 
 std::string ClientManager::getDefaultReportUrl(const std::string& baseUrlInput, const std::string& shard)
 {

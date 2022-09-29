@@ -62,6 +62,12 @@ protected:
 		/* 0.146 */ 0x16EC50;
 	;
 
+	typedef bool(*isValidRobloxAssetUrl_ptr)(const std::string& url);
+	const isValidRobloxAssetUrl_ptr isValidRobloxAssetUrl = (isValidRobloxAssetUrl_ptr)
+		/* 0.132 */ //0x0
+		/* 0.146 */ 0x171990;
+	;
+
 	typedef void(*getDefaultReportUrl_ptr)(const std::string& baseUrl, const std::string& shard);
 	const getDefaultReportUrl_ptr getDefaultReportUrl = (getDefaultReportUrl_ptr)
 		/* 0.132 */ //0x0

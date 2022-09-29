@@ -24,18 +24,19 @@ public:
 	static std::string buildGenericApiUrl(const std::string& baseUrl, const std::string& serviceNameIn, const std::string& path, const std::string& key);
 	static bool isHttpUrl(const std::string& s);
 	static std::string cleanUpIfAssetUrl(const std::string& url);
-	//static CallWrapper<0, std::string, std::string, std::string, std::string, std::string> buildGenericApiUrlWrapper;
+	static bool isValidRobloxAssetUrl(const std::string& url);
 
 	static std::string getDefaultReportUrl(const std::string& baseUrl, const std::string& shard);
 
 
 	// HACK: Prevents the compiler from automatically deconstructing a type ( thanks moded :) )
 	template <typename T>
-	struct primative
+	struct primitive
 	{
 		unsigned char b[sizeof(T)];
 	};
 
-	static std::string buildGenericApiUrlWrapper(primative<std::string> baseUrl, primative<std::string> serviceNameIn, primative<std::string> path, primative<std::string> key);
+	static std::string buildGenericApiUrlWrapper(primitive<std::string> baseUrl, primitive<std::string> serviceNameIn, primitive<std::string> path, primitive<std::string> key);
+	static bool isValidRobloxAssetUrlWrapper(primitive<std::string> url);
 };
 
