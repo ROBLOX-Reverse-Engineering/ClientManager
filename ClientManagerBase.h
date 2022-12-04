@@ -11,33 +11,34 @@ class ClientManagerBase : public ModuleBase
 protected:
 	static const unsigned int publicKey =
 		/* 0.132 */ //0xC10C30
-		/* 0.146 */ 0x9B8D38
+		/* 0.146 */ 0xDB8D38
 	;
 	static const unsigned int assetUrl1 =
 		/* 0.132 */ //0xB84E60
-		/* 0.146 */ 0x8EA99C
+		/* 0.146 */ 0xCEA99C
 	;
 	static const unsigned int assetUrl2 =
 		/* 0.132 */ //0xB84798
-		/* 0.146 */ 0x8EA528
+		/* 0.146 */ 0xCEA528
 	;
 	static const unsigned int assetUrl3 =
 		/* 0.132 */ //0xB8477C
-		/* 0.146 */ 0x8EA544
+		/* 0.146 */ 0xCEA544
 	;
 	static const unsigned int fileSystem1 =
 		/* 0.132 */ //0xB93EBC
-		/* 0.146 */ 0x8FAC9C
+		/* 0.146 */ 0xCFAC9C
 	;
 	static const unsigned int fileSystem2 =
 		/* 0.132 */ //0xB93EB4
-		/* 0.146 */ 0x8FACA8
+		/* 0.146 */ 0xCFACA8
 	;
 
 public:
 	ClientManagerBase(const char* const moduleName, bool moduleEnabled);
 
 protected:
+	// All RVAs
 	typedef bool(* isTrustedContent_ptr)(const char* url);
 	const isTrustedContent_ptr isTrustedContent = (isTrustedContent_ptr)
 		/* 0.132 */ //0x523EA0
@@ -53,25 +54,25 @@ protected:
 	typedef std::string(* buildGenericApiUrl_ptr)(const std::string& baseUrl, const std::string& serviceNameIn, const std::string& path, const std::string& key);
 	const buildGenericApiUrl_ptr buildGenericApiUrl = (buildGenericApiUrl_ptr)
 		/* 0.132 */ //0x7F0AE0
-		/* 0.146 */ 0x2AEC80;
+		/* 0.146 */ 0x2AEC80
 	;
 
 	typedef void(*cleanUpIfAssetUrl_ptr)(const std::string& url);
 	const cleanUpIfAssetUrl_ptr cleanUpIfAssetUrl = (cleanUpIfAssetUrl_ptr)
 		/* 0.132 */ //0x0
-		/* 0.146 */ 0x16EC50;
+		/* 0.146 */ 0x16EC50
 	;
 
 	typedef bool(*isValidRobloxAssetUrl_ptr)(const std::string& url);
 	const isValidRobloxAssetUrl_ptr isValidRobloxAssetUrl = (isValidRobloxAssetUrl_ptr)
 		/* 0.132 */ //0x0
-		/* 0.146 */ 0x171990;
+		/* 0.146 */ 0x171990
 	;
 
 	typedef void(*getDefaultReportUrl_ptr)(const std::string& baseUrl, const std::string& shard);
 	const getDefaultReportUrl_ptr getDefaultReportUrl = (getDefaultReportUrl_ptr)
 		/* 0.132 */ //0x0
-		/* 0.146 */ 0x2B3B60;
+		/* 0.146 */ 0x2B3B60
 	;
 };
 
