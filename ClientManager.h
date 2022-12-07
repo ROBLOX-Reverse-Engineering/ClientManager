@@ -1,11 +1,14 @@
 #pragma once
 #include "ClientManagerBase.h"
+#include "lpstring.h"
 
 /// <summary>
 /// A general client-management module.
 /// </summary>
 class ClientManager : public ClientManagerBase
 {
+#define LPSTRING(name) std::string(((string*)&name)->c_str())
+
 private:
 	void patchClient();
 
@@ -36,7 +39,39 @@ public:
 		unsigned char b[sizeof(T)];
 	};
 
-	static std::string buildGenericApiUrlWrapper(primitive<std::string> baseUrl, primitive<std::string> serviceNameIn, primitive<std::string> path, primitive<std::string> key);
-	static bool isValidRobloxAssetUrlWrapper(primitive<std::string> url);
+	// Wrappers //
+	// TODO: Figure out a better way...
+
+	static string buildGenericApiUrlWrapper(primitive<string> baseUrl, primitive<string> serviceNameIn, primitive<string> path, primitive<string> key)
+	{
+		return string(buildGenericApiUrl(
+			LPSTRING(baseUrl),
+			LPSTRING(serviceNameIn),
+			LPSTRING(path),
+			LPSTRING(key)
+		).c_str());
+	}
+
+	static string cleanUpIfAssetUrlWrapper(const string& url)
+	{
+		return string(cleanUpIfAssetUrl(
+			LPSTRING(url)
+		).c_str());
+	}
+
+	static bool isValidRobloxAssetUrlWrapper(primitive<string> url)
+	{
+		return isValidRobloxAssetUrl(
+			LPSTRING(url)
+		);
+	}
+
+	static string getDefaultReportUrlWrapper(const string& baseUrl, const string& shard)
+	{
+		return string(getDefaultReportUrl(
+			LPSTRING(baseUrl),
+			LPSTRING(shard)
+		).c_str());
+	}
 };
 

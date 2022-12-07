@@ -64,6 +64,7 @@ void ClientManager::patchClient()
 {
 	// We could replace the actual pointer here instead of the value it points to (though it doesn't really matter since pubkeys are always the same length)
 	PatchHelper::PatchBytes(publicKey, "BgIAAACkAABSU0ExAAQAAAEAAQCRCVQhLSOLCa8zpdnkvM6iYQ/noaVbZgI5gkPUh7eWygShuCXTN+nTAZql7oFrmSWgj86QugP0lBkkl6Gtr1FptfyCKHs9rhBxiJ3wjFbb0tPN11ephsGEPa+JgauM5ZRt52IPNfruzs1r/pYl7yBh/XKLxp+9DKCue1ifYWtc3A==");
+	// No longer needed, as cleanUpIfAssetUrl is hooked
 	//PatchHelper::PatchBytes(assetUrl1, "http://roblonium.com/asset/?");
 	PatchHelper::PatchBytes(assetUrl2, "http://roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
 	PatchHelper::PatchBytes(assetUrl3, "http://www.roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
@@ -74,13 +75,12 @@ void ClientManager::patchClient()
 	PatchHelper::HookFunction((unsigned int)ClientManagerBase::isTrustedContent, (unsigned int)&isTrustedContent);
 	PatchHelper::HookFunction((unsigned int)ClientManagerBase::trustCheck, (unsigned int)&trustCheck);
 	PatchHelper::HookFunction((unsigned int)ClientManagerBase::buildGenericApiUrl, (unsigned int)&buildGenericApiUrlWrapper);
-	PatchHelper::HookFunction((unsigned int)ClientManagerBase::cleanUpIfAssetUrl, (unsigned int)&cleanUpIfAssetUrl);
+	PatchHelper::HookFunction((unsigned int)ClientManagerBase::cleanUpIfAssetUrl, (unsigned int)&cleanUpIfAssetUrlWrapper);
 	// TODO: For some reason merely the act of hooking this function causes a stack corruption
 	// later down the line, and I have no idea why...
 	//PatchHelper::HookFunction((unsigned int)ClientManagerBase::isValidRobloxAssetUrl, (unsigned int)&isValidRobloxAssetUrlWrapper);
-	PatchHelper::HookFunction((unsigned int)ClientManagerBase::getDefaultReportUrl, (unsigned int)&getDefaultReportUrl);
+	PatchHelper::HookFunction((unsigned int)ClientManagerBase::getDefaultReportUrl, (unsigned int)&getDefaultReportUrlWrapper);
 
-	//print(ClientManagerBase::buildGenericApiUrl(getBaseUrl(), "games", "/v1/GetRelayConfiguration", "test").c_str());
 }
 
 
@@ -104,17 +104,6 @@ bool ClientManager::trustCheck(const char* url, bool externalRequest)
 	//printf("trustCheck: %s", url);
 	//printf("externalRequest: %s", externalRequest ? "true" : "false");
 	return true;
-}
-
-
-std::string ClientManager::buildGenericApiUrlWrapper(primitive<std::string> baseUrl, primitive<std::string> serviceNameIn, primitive<std::string> path, primitive<std::string> key)
-{
-	return buildGenericApiUrl(
-		*(std::string*)&baseUrl,
-		*(std::string*)&serviceNameIn,
-		*(std::string*)&path,
-		*(std::string*)&key
-	);
 }
 
 
@@ -219,14 +208,6 @@ std::string ClientManager::cleanUpIfAssetUrl(const std::string& url)
     }
 	WatchDog::singleton()->print(url.c_str());
 	return url;
-}
-
-
-bool ClientManager::isValidRobloxAssetUrlWrapper(primitive<std::string> url)
-{
-	return isValidRobloxAssetUrl(
-		*(std::string*)&url
-	);
 }
 
 
