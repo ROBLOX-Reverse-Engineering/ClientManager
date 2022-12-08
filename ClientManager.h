@@ -7,8 +7,6 @@
 /// </summary>
 class ClientManager : public ClientManagerBase
 {
-#define LPSTRING(name) std::string(((string*)&name)->c_str())
-
 private:
 	void patchClient();
 
