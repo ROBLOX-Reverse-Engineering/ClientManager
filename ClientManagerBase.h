@@ -2,18 +2,6 @@
 #include "modules/Base/ModuleBase.h"
 #include "Addresses.h"
 
-#define CLIENT_VERSION 132
-
-// Version-Based Address
-#define VERSION_ADDR(ver, addr) ver == CLIENT_VERSION ? addr : 
-// Defines an address with the given name and value
-#define ADDR(name, contents) static const unsigned int name = contents;
-// Captures a set of arguments (for ignoring commas)
-#define ARGS(...) __VA_ARGS__
-// Defines a function using the given return type, name, arguments, and address contents
-#define FUNC(type, name, args, contents) typedef type(* name ## _ptr)(args); \
-const name ## _ptr name = ( name ## _ptr)(contents);
-
 /// <summary>
 /// The base class for the ClientManager protection module.
 /// Includes original hooked functions needed for the module.
@@ -85,46 +73,45 @@ public:
 	ClientManagerBase(const char* const moduleName, bool moduleEnabled);
 
 protected:
-	// All RVAs
 	FUNC(bool, isTrustedContent, ARGS(const char* url),
-		VERSION_ADDR(132, 0x123EA0)
-		VERSION_ADDR(140, 0x86640)
-		VERSION_ADDR(146, 0x55DA70)
+		VERSION_ADDR(132, 0x523EA0)
+		VERSION_ADDR(140, 0xC6640)
+		VERSION_ADDR(146, 0x95DA70)
 		0x0
 	)
 
 	FUNC(bool, trustCheck, ARGS(const char* url, bool externalRequest),
-		VERSION_ADDR(132, 0x2322E0)
-		VERSION_ADDR(140, 0x19F4B0)
-		VERSION_ADDR(146, 0x0F8070)
+		VERSION_ADDR(132, 0x6322E0)
+		VERSION_ADDR(140, 0x59F4B0)
+		VERSION_ADDR(146, 0x4F8070)
 		0x0
 	)
 
 	FUNC(std::string, buildGenericApiUrl, ARGS(const std::string& baseUrl, const std::string& serviceNameIn, const std::string& path, const std::string& key),
-		VERSION_ADDR(132, 0x3F0AE0)
-		VERSION_ADDR(140, 0x32F660)
-		VERSION_ADDR(146, 0x2AEC80)
+		VERSION_ADDR(132, 0x7F0AE0)
+		VERSION_ADDR(140, 0x72F660)
+		VERSION_ADDR(146, 0x6AEC80)
 		0x0
 	)
 
 	FUNC(void, cleanUpIfAssetUrl, ARGS(const std::string& url),
-		VERSION_ADDR(132, 0x279240)
-		VERSION_ADDR(140, 0x1E8FF0)
-		VERSION_ADDR(146, 0x16EC50)
+		VERSION_ADDR(132, 0x679240)
+		VERSION_ADDR(140, 0x5E8FF0)
+		VERSION_ADDR(146, 0x56EC50)
 		0x0
 	)
 
 	FUNC(bool, isValidRobloxAssetUrl, ARGS(const std::string& url),
-		VERSION_ADDR(132, 0x273310)
-		VERSION_ADDR(140, 0x1E2920)
-		VERSION_ADDR(146, 0x171990)
+		VERSION_ADDR(132, 0x673310)
+		VERSION_ADDR(140, 0x5E2920)
+		VERSION_ADDR(146, 0x571990)
 		0x0
 	)
 
 	FUNC(void, getDefaultReportUrl, ARGS(const std::string& baseUrl, const std::string& shard),
-		VERSION_ADDR(132, 0x352E40)
-		VERSION_ADDR(140, 0x353980)
-		VERSION_ADDR(146, 0x2B3B60)
+		VERSION_ADDR(132, 0x752E40)
+		VERSION_ADDR(140, 0x753980)
+		VERSION_ADDR(146, 0x6B3B60)
 		0x0
 	)
 

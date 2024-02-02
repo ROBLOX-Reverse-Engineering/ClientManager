@@ -63,23 +63,21 @@ std::string ClientManager::getRobloxUrl()
 void ClientManager::patchClient()
 {
 	// We could replace the actual pointer here instead of the value it points to (though it doesn't really matter since pubkeys are always the same length)
-	PatchHelper::PatchBytes(publicKey, "BgIAAACkAABSU0ExAAQAAAEAAQCRCVQhLSOLCa8zpdnkvM6iYQ/noaVbZgI5gkPUh7eWygShuCXTN+nTAZql7oFrmSWgj86QugP0lBkkl6Gtr1FptfyCKHs9rhBxiJ3wjFbb0tPN11ephsGEPa+JgauM5ZRt52IPNfruzs1r/pYl7yBh/XKLxp+9DKCue1ifYWtc3A==");
-	// No longer needed, as cleanUpIfAssetUrl is hooked
-	//PatchHelper::PatchBytes(assetUrl1, "http://roblonium.com/asset/?");
-	PatchHelper::PatchBytes(assetUrl2, "http://roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
-	PatchHelper::PatchBytes(assetUrl3, "http://www.roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
-	PatchHelper::PatchBytes(fileSystem1, "\\Hexine\\");
-	PatchHelper::PatchBytes(fileSystem2, "Hexine\\");
+	PATCH_BYTES(publicKey, "BgIAAACkAABSU0ExAAQAAAEAAQCRCVQhLSOLCa8zpdnkvM6iYQ/noaVbZgI5gkPUh7eWygShuCXTN+nTAZql7oFrmSWgj86QugP0lBkkl6Gtr1FptfyCKHs9rhBxiJ3wjFbb0tPN11ephsGEPa+JgauM5ZRt52IPNfruzs1r/pYl7yBh/XKLxp+9DKCue1ifYWtc3A==");
+	PATCH_BYTES(assetUrl2, "http://roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
+	PATCH_BYTES(assetUrl3, "http://www.roblonium.com/asset/"); // for RBX::ContentProvider::isValidRobloxAssetUrl
+	PATCH_BYTES(fileSystem1, "\\Hexine\\");
+	PATCH_BYTES(fileSystem2, "Hexine\\");
 
 	// Function Hooks
-	PatchHelper::HookFunction((unsigned int)ClientManagerBase::isTrustedContent, (unsigned int)&isTrustedContent);
-	PatchHelper::HookFunction((unsigned int)ClientManagerBase::trustCheck, (unsigned int)&trustCheck);
-	PatchHelper::HookFunction((unsigned int)ClientManagerBase::buildGenericApiUrl, (unsigned int)&buildGenericApiUrlWrapper);
-	PatchHelper::HookFunction((unsigned int)ClientManagerBase::cleanUpIfAssetUrl, (unsigned int)&cleanUpIfAssetUrlWrapper);
+	HOOK_FUNC(ClientManagerBase::isTrustedContent, isTrustedContent);
+	HOOK_FUNC(ClientManagerBase::trustCheck, trustCheck);
+	HOOK_FUNC(ClientManagerBase::buildGenericApiUrl, buildGenericApiUrlWrapper);
+	HOOK_FUNC(ClientManagerBase::cleanUpIfAssetUrl, cleanUpIfAssetUrlWrapper);
 	// TODO: For some reason merely the act of hooking this function causes a stack corruption
 	// later down the line, and I have no idea why...
-	//PatchHelper::HookFunction((unsigned int)ClientManagerBase::isValidRobloxAssetUrl, (unsigned int)&isValidRobloxAssetUrlWrapper);
-	PatchHelper::HookFunction((unsigned int)ClientManagerBase::getDefaultReportUrl, (unsigned int)&getDefaultReportUrlWrapper);
+	//HOOK_FUNC(ClientManagerBase::isValidRobloxAssetUrl, isValidRobloxAssetUrlWrapper);
+	HOOK_FUNC(ClientManagerBase::getDefaultReportUrl, getDefaultReportUrlWrapper);
 
 }
 
@@ -88,7 +86,7 @@ bool ClientManager::isTrustedContent(const char* url)
 {
 	// TODO: ClientManager singleton for this?
 	// These have to be static btw, but we could maybe use a singleton?
-	//printf("isTrustedContent: %s", url);
+	WatchDog::singleton()->printf("isTrustedContent: %s", url);
 	return true;
 }
 
